@@ -1,10 +1,110 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>My sit</title>
-  </head>
-  <body>
-    <h1>this is my github pages website</h1>
-  </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Grid Toggle</title>
+    <style>
+        body{
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        #buttonGrid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr); /* Adjust the number of columns */
+            gap: 0.3rem;
+            padding: 10px;
+            width: 80vmin;
+            height: 80vmin;
+        }
+
+        button {
+            aspect-ratio: 1;
+            cursor: pointer;
+            border: 1px solid #ccc; /* Optional: adds a border to the button */
+            border-radius: 5px;
+        }
+
+        .off {
+            background-color: gray;
+        }
+
+        .on {
+            background-color: green;
+        }
+        #percentageDisplay{
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="percentageDisplay">0%</div>
+    <div id="buttonGrid">
+        <!-- Buttons will be added here by JavaScript -->
+    </div>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const grid = document.getElementById('buttonGrid');
+    const totalButtons = 100; // Total number of buttons
+
+    // Read the saved state from cookies
+    const savedState = getCookie('buttonState') ? getCookie('buttonState').split(',') : new Array(totalButtons).fill('off');
+
+    // Create and append buttons to the grid
+    for (let i = 0; i < totalButtons; i++) {
+        let button = document.createElement('button');
+        button.id = 'button' + i;
+        button.classList.add(savedState[i]);
+        button.onclick = function() { toggleButton(button, i); };
+        grid.appendChild(button);
+    }
+
+    function toggleButton(button, index) {
+        button.classList.toggle('on');
+        button.classList.toggle('off');
+        updatePercentage();
+        saveState();
+    }
+
+    function updatePercentage() {
+        const offButtons = document.querySelectorAll('.off').length;
+        const percentage = 100 - (offButtons / totalButtons) * 100;
+        document.getElementById('percentageDisplay').innerText = percentage.toFixed(2) + '%';
+    }
+
+    function saveState() {
+        let state = [];
+        for (let i = 0; i < totalButtons; i++) {
+            let button = document.getElementById('button' + i);
+            state[i] = button.classList.contains('on') ? 'on' : 'off';
+        }
+        setCookie('buttonState', state.join(','), 30); // Save for 7 days
+    }
+
+    function setCookie(name, value, days) {
+        var expires = "";
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days*24*60*60*1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    function getCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    updatePercentage(); // Update percentage on load
+});
+    </script>
+</body>
 </html>
